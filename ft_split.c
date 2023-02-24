@@ -31,7 +31,22 @@ static int	size1(char const *s, char c)
 	return (k);
 }
 
-static void	size2(char const *s, char c, char **str)
+static int	mlc(char **str, int q, int j)
+{
+	if (q != 0)
+	{
+		str[j] = malloc(q + 1);
+		if (str[j] == NULL)
+		{
+			while (--j > -1)
+				free(str[j]);
+			return (0);
+		}
+	}
+	return (1);
+}
+
+static int	size2(char const *s, char c, char **str)
 {
 	int	i;
 	int	j;
@@ -44,20 +59,13 @@ static void	size2(char const *s, char c, char **str)
 		while (s[i] == c)
 			i++;
 		q = 0;
-		while (s[i] != c && s[i])
-		{
-			q++;
+		while (s[i] != c && s[i] && ++q)
 			i++;
-		}
-		if (q != 0)
-		{
-			str[j] = malloc(q + 1);
-			if (str[j] == NULL)
-				while (--j > -1)
-					free(str[j]);
-		}
+		if (!mlc(str, q, j))
+			return (0);
 		j++;
 	}
+	return (1);
 }
 
 static void	f(char const *s, char c, int k, char **s1)
@@ -87,13 +95,19 @@ static void	f(char const *s, char c, int k, char **s1)
 char	**ft_split(char const *s, char c)
 {
 	int		k;
+	int		q;
 	char	**s1;
 
 	k = size1(s, c);
 	s1 = (char **)malloc(sizeof(char *) * (k + 1));
 	if (s1 == NULL)
 		return (NULL);
-	size2(s, c, s1);
+	q = size2(s, c, s1);
+	if (q == 0)
+	{
+		free(s1);
+		return (NULL);
+	}
 	f(s, c, k, s1);
 	return (s1);
 }
